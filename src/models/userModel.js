@@ -2,24 +2,22 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
-    firstName: { type: String, required: true },
-    lastName: { type: String, required: true },
+    firstName: { type: String, default: null },
+    lastName: { type: String, default: null },
 
     email: { type: String, required: true, unique: true, index: true },
-    phone: { type: String, required: true, unique: true, index: true },
+    phone: { type: String, default: null, unique: true, sparse: true },
 
-    password: { type: String, required: true },
+    password: { type: String, default: null },
 
     country: String,
     state: String,
     city: String,
     pinCode: String,
 
-    // 🔥 OTP SYSTEM FIELDS
-    otp: { type: String },
-    otpExpires: { type: Date },
+    otp: String,
+    otpExpires: Date,
 
-    // 🔥 USER VERIFICATION STATUS
     isVerified: {
       type: Boolean,
       default: false,
@@ -28,7 +26,7 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// optional: remove sensitive data when sending response
+// remove sensitive data
 userSchema.methods.toJSON = function () {
   const user = this.toObject();
   delete user.password;
