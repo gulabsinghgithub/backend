@@ -4,7 +4,12 @@ dotenv.config();
 const app = require("./app");
 const connectDB = require("./config/db");
 
-// Connect Database FIRST and handle failure properly
+// Test route
+app.get("/", (req, res) => {
+  res.send("Backend Running Successfully 🚀");
+});
+
+// Connect Database THEN start server
 connectDB()
   .then(() => {
     console.log("Database connected successfully 🚀");
@@ -19,8 +24,3 @@ connectDB()
     console.error("Database connection failed ❌", err);
     process.exit(1);
   });
-
-// Test route
-app.get("/", (req, res) => {
-  res.send("Backend Running Successfully 🚀");
-});
