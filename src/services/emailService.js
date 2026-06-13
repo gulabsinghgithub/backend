@@ -1,21 +1,33 @@
-const sgMail = require("@sendgrid/mail");
-
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+const nodemailer = require("nodemailer");
 
 const sendOTPEmail = async (email, otp) => {
-  const msg = {
-    to: email,
-    from: process.env.EMAIL_FROM,
-    subject: "OTP Verification",
-    text: `Your OTP is ${otp}`,
-    html: `<h2>Your OTP is <b>${otp}</b></h2>`,
-  };
-
   try {
-    await sgMail.send(msg);
-    console.log("OTP email sent via SendGrid");
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: `"OTP Service" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "OTP Verification",
+      text: `Your OTP is ${otp}`,
+      html: `<h2>Your OTP is <b>${otp}</b></h2>`,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+
+    console.log("✅ OTP Email sent:", info.messageId);
+    return true;
+
   } catch (error) {
-    console.log("SendGrid error:", error.response?.body || error.message);
+    console.log("❌ Nodemailer Error:", error.message);
+    throw error;
   }
 };
 
