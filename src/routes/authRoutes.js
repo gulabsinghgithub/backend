@@ -5,7 +5,7 @@ const {
   registerUser,
   sendOTP,
   verifyOTP,
-} = require("../controllers/authController");
+} = require("/controllers/authController");
 
 // Async handler wrapper
 const asyncHandler = (fn) => (req, res, next) =>
