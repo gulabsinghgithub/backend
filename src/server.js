@@ -1,13 +1,13 @@
-import dotenv from "dotenv";
-dotenv.config();
 const dotenv = require("dotenv");
 dotenv.config();
 
 const app = require("./app");
 const connectDB = require("./config/db");
 
+// Connect Database
 connectDB();
 
+// Test route
 app.get("/", (req, res) => {
   res.send("Backend Running Successfully 🚀");
 });
