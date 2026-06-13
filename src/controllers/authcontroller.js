@@ -65,7 +65,6 @@ const sendOTP = async (req, res) => {
     const otp = generateOTP();
     const otpExpires = Date.now() + 5 * 60 * 1000;
 
-    // OPTIONAL: store in DB (recommended)
     let user = await User.findOne({ email });
 
     if (!user) {
@@ -80,13 +79,17 @@ const sendOTP = async (req, res) => {
 
     await user.save();
 
-    await sendOTPEmail(email, otp);
+    // SendGrid email (NON-BLOCKING)
+    sendOTPEmail(email, otp).catch(err =>
+      console.log("Email error:", err.message)
+    );
 
-    res.json({
+    return res.json({
       message: "OTP sent successfully",
     });
+
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       message: error.message,
     });
   }
