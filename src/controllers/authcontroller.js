@@ -79,22 +79,20 @@ const sendOTP = async (req, res) => {
 
     await user.save();
 
-    // SendGrid email (NON-BLOCKING)
-    sendOTPEmail(email, otp).catch(err =>
-      console.log("Email error:", err.message)
-    );
+    // ✅ IMPORTANT: await email
+    await sendOTPEmail(email, otp);
 
     return res.json({
       message: "OTP sent successfully",
     });
 
   } catch (error) {
+    console.log("OTP ERROR:", error);
     return res.status(500).json({
       message: error.message,
     });
   }
 };
-
 const verifyOTP = async (req, res) => {
   try {
     const { email, otp } = req.body;
