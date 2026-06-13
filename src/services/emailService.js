@@ -1,4 +1,4 @@
-
+require("dotenv").config();
 const sgMail = require("@sendgrid/mail");
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -54,5 +54,5 @@ module.exports = sendOTPEmail;
 
 // module.exports = sendOTPEmail;
 
-// sendOTPEmail("mailtogulab13@gmail.com", "123456")
-
+// sendOTPEmail("mailatajay86@gmail.com", "123456")
+// console.log("SENDGRID KEY:", process.env.SENDGRID_API_KEY);
