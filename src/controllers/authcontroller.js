@@ -86,7 +86,7 @@ const sendOTP = async (req, res) => {
     console.log("🚀 Sending email...");
     await sendOTPEmail(email, otp);
     console.log("✅ Email sent");
-
+console.log("BODY:", req.body);
     return res.json({ message: "OTP sent successfully" });
 
   } catch (error) {

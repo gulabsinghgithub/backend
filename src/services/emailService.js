@@ -84,5 +84,5 @@ module.exports = sendOTPEmail;
 // }
 
 // sendMail("gulab@mdws.in","This is Subject","This is message body");
-// sendOTPEmail("mailtogulab13@gmail.com", "123456")
+sendOTPEmail("mailtogulab13@gmail.com", "123456")
 
