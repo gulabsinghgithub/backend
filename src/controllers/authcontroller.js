@@ -62,32 +62,24 @@ const sendOTP = async (req, res) => {
   try {
     const { email } = req.body;
 
-    // 1. check user
-    const user = await User.findOne({ email });
+    const otp = generateOTP();
+    const otpExpires = Date.now() + 5 * 60 * 1000;
+
+    // OPTIONAL: store in DB (recommended)
+    let user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(404).json({
-        message: "User not found",
+      user = new User({
+        email,
+        isVerified: false,
       });
     }
 
-    if (user.isVerified) {
-      return res.status(400).json({
-        message: "User already verified",
-      });
-    }
-
-    // 2. generate OTP
-    const otp = generateOTP();
-    const otpExpires = Date.now() + 5 * 60 * 1000; // 5 min
-
-    // 3. save OTP in DB
     user.otp = otp;
     user.otpExpires = otpExpires;
 
     await user.save();
 
-    // 4. send email
     await sendOTPEmail(email, otp);
 
     res.json({
