@@ -60,37 +60,38 @@ const registerUser = async (req, res) => {
 
 const sendOTP = async (req, res) => {
   try {
+    console.log("🔥 API HIT");
+
     const { email } = req.body;
+    console.log("EMAIL:", email);
+
+    if (!email) {
+      return res.status(400).json({ message: "Email missing" });
+    }
 
     const otp = generateOTP();
-    const otpExpires = Date.now() + 5 * 60 * 1000;
+    console.log("OTP:", otp);
 
     let user = await User.findOne({ email });
 
     if (!user) {
-      user = new User({
-        email,
-        isVerified: false,
-      });
+      user = new User({ email, isVerified: false });
     }
 
     user.otp = otp;
-    user.otpExpires = otpExpires;
+    user.otpExpires = Date.now() + 5 * 60 * 1000;
 
     await user.save();
 
-    // ✅ IMPORTANT: await email
+    console.log("🚀 Sending email...");
     await sendOTPEmail(email, otp);
+    console.log("✅ Email sent");
 
-    return res.json({
-      message: "OTP sent successfully",
-    });
+    return res.json({ message: "OTP sent successfully" });
 
   } catch (error) {
-    console.log("OTP ERROR:", error);
-    return res.status(500).json({
-      message: error.message,
-    });
+    console.log("❌ ERROR:", error);
+    return res.status(500).json({ message: error.message });
   }
 };
 const verifyOTP = async (req, res) => {
