@@ -13,6 +13,7 @@ const {
   loginUser,
   deleteUser,
   forgotPassword,
+  resetPassword,
 } = require("../controllers/authcontroller");
 
 // Routes
@@ -26,4 +27,5 @@ router.delete(
   deleteUser
 );
 router.post("/forgot-password", forgotPassword);
+router.post("/reset-password", resetPassword);
 module.exports = router;
