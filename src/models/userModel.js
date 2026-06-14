@@ -2,6 +2,12 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
+    userId: {
+      type: Number,
+      unique: true,
+      index: true,
+    },
+
     firstName: { type: String, default: null },
     lastName: { type: String, default: null },
 
@@ -26,7 +32,6 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// remove sensitive data
 userSchema.methods.toJSON = function () {
   const user = this.toObject();
   delete user.password;

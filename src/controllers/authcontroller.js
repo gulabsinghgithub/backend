@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
+const Counter = require("../models/counterModel");
 const bcrypt = require("bcryptjs");
 const sendOTPEmail = require("../services/emailService");
 
@@ -35,9 +36,20 @@ const registerUser = async (req, res) => {
       });
     }
 
+    // Generate next userId starting from 1000
+    const counter = await Counter.findByIdAndUpdate(
+      "userId",
+      { $inc: { seq: 1 } },
+      {
+        new: true,
+        upsert: true,
+      }
+    );
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
+      userId: counter.seq,
       firstName,
       lastName,
       email,
@@ -50,12 +62,15 @@ const registerUser = async (req, res) => {
       isVerified: false,
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       message: "User registered successfully. Now send OTP.",
-      userId: user._id,
+      userId: user.userId,
+      mongoId: user._id,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({
+      message: error.message,
+    });
   }
 };
 
@@ -118,10 +133,13 @@ console.log("JWT_SECRET =", process.env.JWT_SECRET);
     );
 
     // Remove sensitive fields
-    const userData = user.toObject();
-    delete userData.password;
-    delete userData.otp;
-    delete userData.otpExpires;
+const userData = user.toObject();
+
+delete userData._id;          // Hide MongoDB ObjectId
+delete userData.__v;
+delete userData.password;
+delete userData.otp;
+delete userData.otpExpires;
 
     return res.status(200).json({
       message: "Login successful",
