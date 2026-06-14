@@ -357,6 +357,47 @@ message: error.message,
 }
 };
 
+const verifyForgotPasswordOTP = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    if (!user.otp) {
+      return res.status(400).json({
+        message: "OTP not found. Please request again.",
+      });
+    }
+
+    if (user.otp !== otp) {
+      return res.status(400).json({
+        message: "Invalid OTP",
+      });
+    }
+
+    if (user.otpExpires < Date.now()) {
+      return res.status(400).json({
+        message: "OTP expired",
+      });
+    }
+
+    return res.status(200).json({
+      message: "OTP verified successfully",
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
 const verifyOTP = async (req, res) => {
   try {
     const { email, otp } = req.body;
@@ -473,6 +514,7 @@ module.exports = {
   deleteUser,
   forgotPassword,
   resetPassword,
+  verifyForgotPasswordOTP,
   changePassword,
 };
 

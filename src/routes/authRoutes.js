@@ -14,6 +14,7 @@ const {
   deleteUser,
   forgotPassword,
   resetPassword,
+  verifyForgotPasswordOTP,
   changePassword,
 } = require("../controllers/authcontroller");
 
@@ -29,6 +30,10 @@ router.delete(
 );
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
+router.post(
+  "/verify-forgot-password-otp",
+  verifyForgotPasswordOTP
+);
 router.post(
   "/change-password",
   authMiddleware,
