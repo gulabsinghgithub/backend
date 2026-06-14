@@ -8,11 +8,13 @@ const {
   registerUser,
   sendOTP,
   verifyOTP,
+  loginUser,
 } = require("../controllers/authcontroller");
 
 // Routes
 router.post("/register", registerUser);
 router.post("/send-otp", sendOTP);
 router.post("/verify-otp", verifyOTP);
+router.post("/login", loginUser);
 
 module.exports = router;

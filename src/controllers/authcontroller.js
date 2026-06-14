@@ -1,3 +1,4 @@
+const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const bcrypt = require("bcryptjs");
 const sendOTPEmail = require("../services/emailService");
@@ -55,6 +56,82 @@ const registerUser = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+// ===============================
+// LOGIN API
+// ===============================
+const loginUser = async (req, res) => {
+  try {
+    const { emailOrPhone, password } = req.body;
+
+    if (!emailOrPhone || !password) {
+      return res.status(400).json({
+        message: "Email/Phone and Password are required",
+      });
+    }
+
+    // Find user by email OR phone
+    const user = await User.findOne({
+      $or: [
+        { email: emailOrPhone },
+        { phone: emailOrPhone },
+      ],
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    // Check verified
+    if (!user.isVerified) {
+      return res.status(400).json({
+        message: "Please verify your account first",
+      });
+    }
+
+    // Check password
+    const isMatch = await bcrypt.compare(
+      password,
+      user.password
+    );
+
+    if (!isMatch) {
+      return res.status(400).json({
+        message: "Invalid password",
+      });
+    }
+
+    // Generate JWT Token
+    const token = jwt.sign(
+      {
+        userId: user._id,
+        email: user.email,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "30d",
+      }
+    );
+
+    // Remove sensitive fields
+    const userData = user.toObject();
+    delete userData.password;
+    delete userData.otp;
+    delete userData.otpExpires;
+
+    return res.status(200).json({
+      message: "Login successful",
+      token,
+      user: userData,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
   }
 };
 
