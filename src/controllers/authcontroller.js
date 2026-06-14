@@ -81,6 +81,7 @@ const loginUser = async (req, res) => {
   try {
     const { emailOrPhone, password } = req.body;
 
+    // Validate input
     if (!emailOrPhone || !password) {
       return res.status(400).json({
         message: "Email/Phone and Password are required",
@@ -101,14 +102,21 @@ const loginUser = async (req, res) => {
       });
     }
 
-    // Check verified
+    // Check account verification
     if (!user.isVerified) {
       return res.status(400).json({
         message: "Please verify your account first",
       });
     }
 
-    // Check password
+    // Check if custom userId exists
+    if (!user.userId) {
+      return res.status(400).json({
+        message: "User ID not found. Please contact support.",
+      });
+    }
+
+    // Verify password
     const isMatch = await bcrypt.compare(
       password,
       user.password
@@ -119,11 +127,11 @@ const loginUser = async (req, res) => {
         message: "Invalid password",
       });
     }
-console.log("JWT_SECRET =", process.env.JWT_SECRET);
-    // Generate JWT Token
+
+    // Generate JWT Token using custom userId
     const token = jwt.sign(
       {
-        userId: user._id,
+        userId: user.userId,
         email: user.email,
       },
       process.env.JWT_SECRET,
@@ -132,19 +140,57 @@ console.log("JWT_SECRET =", process.env.JWT_SECRET);
       }
     );
 
-    // Remove sensitive fields
-const userData = user.toObject();
-
-delete userData._id;          // Hide MongoDB ObjectId
-delete userData.__v;
-delete userData.password;
-delete userData.otp;
-delete userData.otpExpires;
+    // Prepare user data
+    const userData = {
+      userId: user.userId,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      phone: user.phone,
+      country: user.country,
+      state: user.state,
+      city: user.city,
+      pinCode: user.pinCode,
+      isVerified: user.isVerified,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
 
     return res.status(200).json({
       message: "Login successful",
       token,
       user: userData,
+    });
+
+  } catch (error) {
+    console.error("Login Error:", error);
+
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  try {
+    const { userId } = req.user;
+
+    const user = await User.findOne({
+      userId: userId,
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    await User.deleteOne({
+      userId: userId,
+    });
+
+    return res.status(200).json({
+      message: "Account deleted successfully",
     });
   } catch (error) {
     return res.status(500).json({
@@ -252,6 +298,7 @@ module.exports = {
   sendOTP,
   verifyOTP,
   loginUser,
+  deleteUser,
 };
 
 // require("dotenv").config();
