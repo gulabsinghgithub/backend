@@ -48,25 +48,25 @@ const registerUser = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await User.create({
-      userId: counter.seq,
-      firstName,
-      lastName,
-      email,
-      phone,
-      password: hashedPassword,
-      country,
-      state,
-      city,
-      pinCode,
-      isVerified: false,
-    });
+const userData = {
+  userId: user.userId,
+  firstName: user.firstName,
+  lastName: user.lastName,
+  email: user.email,
+  phone: user.phone,
+  country: user.country,
+  state: user.state,
+  city: user.city,
+  pinCode: user.pinCode,
+  isVerified: user.isVerified,
+  createdAt: user.createdAt,
+  updatedAt: user.updatedAt,
+};
 
-    return res.status(201).json({
-      message: "User registered successfully. Now send OTP.",
-      userId: user.userId,
-      mongoId: user._id,
-    });
+return res.status(201).json({
+  message: "User registered successfully.",
+  user: userData,
+});
   } catch (error) {
     return res.status(500).json({
       message: error.message,
