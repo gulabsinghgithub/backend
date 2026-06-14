@@ -12,6 +12,7 @@ const {
   verifyOTP,
   loginUser,
   deleteUser,
+  forgotPassword,
 } = require("../controllers/authcontroller");
 
 // Routes
@@ -24,4 +25,5 @@ router.delete(
   authMiddleware,
   deleteUser
 );
+router.post("/forgot-password", forgotPassword);
 module.exports = router;

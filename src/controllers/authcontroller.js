@@ -254,6 +254,48 @@ console.log("BODY:", req.body);
     return res.status(500).json({ message: error.message });
   }
 };
+
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        message: "Email is required",
+      });
+    }
+
+    // Check user exists
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    // Generate OTP
+    const otp = generateOTP();
+
+    // Save OTP
+    user.otp = otp;
+    user.otpExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
+
+    await user.save();
+
+    // Send Email
+    await sendOTPEmail(email, otp);
+
+    return res.status(200).json({
+      message: "Password reset OTP sent successfully",
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
 const verifyOTP = async (req, res) => {
   try {
     const { email, otp } = req.body;
@@ -318,6 +360,7 @@ module.exports = {
   verifyOTP,
   loginUser,
   deleteUser,
+  forgotPassword,
 };
 
 // require("dotenv").config();
