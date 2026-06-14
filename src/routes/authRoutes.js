@@ -14,6 +14,7 @@ const {
   deleteUser,
   forgotPassword,
   resetPassword,
+  changePassword,
 } = require("../controllers/authcontroller");
 
 // Routes
@@ -28,4 +29,9 @@ router.delete(
 );
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
+router.post(
+  "/change-password",
+  authMiddleware,
+  changePassword
+);
 module.exports = router;
