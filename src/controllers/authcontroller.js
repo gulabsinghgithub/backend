@@ -170,24 +170,18 @@ const loginUser = async (req, res) => {
     });
   }
 };
-
 const deleteUser = async (req, res) => {
   try {
     const { userId, email, phone } = req.body;
 
-    if (!userId && !email && !phone) {
-      return res.status(400).json({
-        message: "Please provide userId, email or phone",
-      });
-    }
-
-    const query = {
-      $or: [],
-    };
+    const query = { $or: [] };
 
     if (userId) {
-      query.$or.push({ userId: Number(userId) });
-      query.$or.push({ _id: userId }); // supports Mongo ObjectId also
+      if (!isNaN(Number(userId))) {
+        query.$or.push({ userId: Number(userId) });
+      }
+
+      query.$or.push({ _id: userId });
     }
 
     if (email) {
@@ -198,6 +192,12 @@ const deleteUser = async (req, res) => {
       query.$or.push({ phone });
     }
 
+    if (query.$or.length === 0) {
+      return res.status(400).json({
+        message: "Please provide userId, email, or phone",
+      });
+    }
+
     const user = await User.findOne(query);
 
     if (!user) {
@@ -206,18 +206,12 @@ const deleteUser = async (req, res) => {
       });
     }
 
-    await User.deleteOne({
-      _id: user._id,
-    });
+    await User.deleteOne({ _id: user._id });
 
     return res.status(200).json({
       message: "Account deleted successfully",
-      deletedUser: {
-        userId: user.userId,
-        email: user.email,
-        phone: user.phone,
-      },
     });
+
   } catch (error) {
     return res.status(500).json({
       message: error.message,
