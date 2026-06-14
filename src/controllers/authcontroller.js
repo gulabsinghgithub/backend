@@ -104,7 +104,7 @@ const loginUser = async (req, res) => {
         message: "Invalid password",
       });
     }
-
+console.log("JWT_SECRET =", process.env.JWT_SECRET);
     // Generate JWT Token
     const token = jwt.sign(
       {
@@ -235,3 +235,7 @@ module.exports = {
   verifyOTP,
   loginUser,
 };
+
+// require("dotenv").config();
+
+// console.log("JWT_SECRET =", process.env.JWT_SECRET);
