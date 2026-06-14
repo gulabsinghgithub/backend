@@ -173,11 +173,32 @@ const loginUser = async (req, res) => {
 
 const deleteUser = async (req, res) => {
   try {
-    const { userId } = req.user;
+    const { userId, email, phone } = req.body;
 
-    const user = await User.findOne({
-      userId: userId,
-    });
+    if (!userId && !email && !phone) {
+      return res.status(400).json({
+        message: "Please provide userId, email or phone",
+      });
+    }
+
+    const query = {
+      $or: [],
+    };
+
+    if (userId) {
+      query.$or.push({ userId: Number(userId) });
+      query.$or.push({ _id: userId }); // supports Mongo ObjectId also
+    }
+
+    if (email) {
+      query.$or.push({ email });
+    }
+
+    if (phone) {
+      query.$or.push({ phone });
+    }
+
+    const user = await User.findOne(query);
 
     if (!user) {
       return res.status(404).json({
@@ -186,11 +207,16 @@ const deleteUser = async (req, res) => {
     }
 
     await User.deleteOne({
-      userId: userId,
+      _id: user._id,
     });
 
     return res.status(200).json({
       message: "Account deleted successfully",
+      deletedUser: {
+        userId: user.userId,
+        email: user.email,
+        phone: user.phone,
+      },
     });
   } catch (error) {
     return res.status(500).json({
@@ -198,7 +224,6 @@ const deleteUser = async (req, res) => {
     });
   }
 };
-
 const sendOTP = async (req, res) => {
   try {
     console.log("🔥 API HIT");
