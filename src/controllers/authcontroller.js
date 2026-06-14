@@ -301,7 +301,6 @@ const resetPassword = async (req, res) => {
 try {
 const { email, newPassword } = req.body;
 
-```
 if (!email || !newPassword) {
   return res.status(400).json({
     message: "Email and new password are required",
@@ -330,7 +329,6 @@ await user.save();
 return res.status(200).json({
   message: "Password reset successfully",
 });
-```
 
 } catch (error) {
 return res.status(500).json({
